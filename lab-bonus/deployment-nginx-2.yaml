@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-2
+  labels:
+    app: nginx-2
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx-2
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: nginx-2
+    spec:
+      initContainers:
+      - name: init
+        image: ubuntu:latest
+        command:
+        - sh
+        - -c
+        - echo "I am NGINX-2" > /usr/share/nginx/html/index.html; mkdir /usr/share/nginx/html/nginx-2/; echo "I am NGINX-2" > /usr/share/nginx/html/nginx-2/index.html
+        volumeMounts:
+        - mountPath: /usr/share/nginx/html/
+          name: html
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - mountPath: /usr/share/nginx/html/
+          name: html
+          readOnly: true
+      volumes:
+      - emptyDir: {}
+        name: html
